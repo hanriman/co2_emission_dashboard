@@ -17,6 +17,29 @@ def load_data(data_dir: str = "data") -> pd.DataFrame:
         "Continent_Name": "continent_name",
     })
 
+    # Resolve known duplicates / transcontinental assignments with explicit overrides
+    # User-specified preference: assign these ISO3 codes to the listed continent
+    OVERRIDES = {
+        "RUS": "Europe",   # Russian Federation -> Europe only
+        "AZE": "Asia",     # Azerbaijan -> Asia
+        "ARM": "Asia",     # Armenia -> Asia
+        "CYP": "Europe",   # Cyprus -> Europe
+        "GEO": "Europe",   # Georgia -> Europe
+        "KAZ": "Asia",     # Kazakhstan -> Asia
+        "UMI": "Oceania",  # United States Minor Outlying Islands -> Oceania
+        "TUR": "Europe",   # Turkey -> Europe
+    }
+
+    # Apply overrides where applicable
+    countries.loc[countries["three_letter_code"].isin(OVERRIDES.keys()), "continent_name"] = (
+        countries.loc[countries["three_letter_code"].isin(OVERRIDES.keys()), "three_letter_code"].map(OVERRIDES)
+    )
+
+    # If the mapping file contains duplicate rows for the same three_letter_code,
+    # keep the first occurrence after applying overrides to avoid producing multiple
+    # matches during the merge (which would duplicate country-year rows).
+    countries = countries.drop_duplicates(subset=["three_letter_code"]) 
+
     merged = df.merge(countries[["three_letter_code", "continent_name"]],
                       left_on="iso_code", right_on="three_letter_code", how="left")
 
