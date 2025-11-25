@@ -69,3 +69,55 @@ def country_forecast_plot(df: pd.DataFrame, country: str, metric: str = "co2", s
 
     fig.update_layout(title=f"{metric} forecast for {country}", xaxis_title="Year", yaxis_title=metric)
     return fig
+
+
+def global_forecast_plot(df: pd.DataFrame, metric: str = "co2", steps: int = 5):
+    """Aggregate `metric` across all countries by year, forecast, and return a Plotly figure.
+
+    This produces the observed series (aggregated sum by year), a forecast for `steps` years,
+    and a 95% confidence interval filled area.
+    """
+    if metric not in df.columns:
+        raise ValueError(f"Metric '{metric}' not found in dataframe")
+
+    gdf = df.groupby("year", as_index=False)[metric].sum()
+    gdf = gdf.sort_values("year")
+
+    years = gdf["year"].astype(int)
+    values = gdf[metric].astype(float)
+
+    forecast_df = forecast_series(years, values, steps=steps)
+
+    hist_x = forecast_df[forecast_df["y"].notna()]["year"]
+    hist_y = forecast_df[forecast_df["y"].notna()]["y"]
+    fcast = forecast_df[forecast_df["y_pred"].notna()]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=hist_x, y=hist_y, mode="lines+markers", name="Observed", line=dict(color="#1f77b4")))
+    fig.add_trace(go.Scatter(x=fcast["year"], y=fcast["y_pred"], mode="lines+markers", name="Forecast", line=dict(color="#ff7f0e")))
+
+    fig.add_trace(go.Scatter(
+        x=fcast["year"],
+        y=fcast["y_lower"],
+        mode="lines",
+        line=dict(width=0),
+        showlegend=False,
+        name="lower"
+    ))
+    fig.add_trace(go.Scatter(
+        x=fcast["year"],
+        y=fcast["y_upper"],
+        mode="lines",
+        line=dict(width=0),
+        fill="tonexty",
+        fillcolor="rgba(255,127,14,0.2)",
+        name="95% CI"
+    ))
+
+    fig.update_layout(title=f"Global {metric} forecast (sum across countries)", xaxis_title="Year", yaxis_title=metric)
+    return fig
+
+
+def country_gdp_forecast_plot(df: pd.DataFrame, country: str, steps: int = 5):
+    """Convenience wrapper to forecast `gdp` for a country using the existing forecast routine."""
+    return country_forecast_plot(df, country, metric="gdp", steps=steps)

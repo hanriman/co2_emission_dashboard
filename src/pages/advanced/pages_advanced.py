@@ -1,13 +1,13 @@
 """Streamlit page for advanced CO2 emissions analysis."""
 import streamlit as st
 import pandas as pd
-from src.analysis import (
+from src.pages.advanced.analysis import (
     fuel_source_analysis,
     consumption_analysis,
     efficiency_analysis,
     cumulative_analysis,
     greenhouse_gas_analysis,
-    temperature_impact_analysis
+    temperature_impact_analysis,
 )
 
 

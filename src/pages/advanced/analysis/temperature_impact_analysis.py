@@ -143,7 +143,11 @@ def plot_temperature_vs_emissions(df: pd.DataFrame, year: int) -> Optional[go.Fi
         return None
     
     size_col = "population" if "population" in data_year.columns else None
-    
+
+    # Ensure size column is numeric and contains no NaN values (Plotly errors on NaN sizes)
+    if size_col is not None:
+        data_year[size_col] = pd.to_numeric(data_year[size_col], errors="coerce").fillna(0)
+
     fig = px.scatter(
         data_year,
         x="co2",
@@ -155,7 +159,8 @@ def plot_temperature_vs_emissions(df: pd.DataFrame, year: int) -> Optional[go.Fi
         labels={
             "co2": "CO2 Emissions (million tonnes)",
             "temperature_change_from_ghg": "Temperature Change (°C)"
-        }
+        },
+        size_max=60,
     )
     
     return fig
