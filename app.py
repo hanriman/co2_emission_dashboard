@@ -1,8 +1,8 @@
 import streamlit as st
 
 from src.data_loader import load_data
-from src.pages_overview import render_overview
-from src.pages_timeseries import render_country_page
+from src.pages.overview.pages_overview import render_overview
+from src.pages.timeseries.pages_timeseries import render_country_page
 
 
 def main():
@@ -14,10 +14,10 @@ def main():
     # Controls
     years = sorted(df["year"].dropna().astype(int).unique())
     # allow selecting multiple years; visualizations will aggregate across selected years
-    selected_years = st.sidebar.multiselect("Years", options=years, default=[max(years)])
+    selected_years = st.sidebar.multiselect("Years", options=years, default=[max(years)], key="years")
 
     continents = sorted(df["continent_name"].dropna().unique())
-    selected_continents = st.sidebar.multiselect("Continent", options=continents, default=continents)
+    selected_continents = st.sidebar.multiselect("Continent", options=continents, default=continents, key="continents")
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("Data: Our World in Data CO2 dataset")
