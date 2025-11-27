@@ -120,7 +120,7 @@ def render_advanced_analysis_page(df: pd.DataFrame):
     # Tab 3: Temperature Impact
     with tab3:
         st.subheader("Temperature Impact from Emissions")
-        st.markdown("🌡️ **Unique Analysis**: See how countries' emissions contribute to global temperature change. This shows the direct climate impact of emissions.")
+        st.markdown("**Unique Analysis**: See how countries' emissions contribute to global temperature change. This shows the direct climate impact of emissions.")
         
         years = sorted(df["year"].dropna().astype(int).unique())
         temp_year = st.selectbox("Select Year", options=years, index=len(years)-1, key="temp_year")
