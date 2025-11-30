@@ -3,7 +3,6 @@ import streamlit as st
 import pandas as pd
 from src.pages.advanced.analysis import (
     fuel_source_analysis,
-    greenhouse_gas_analysis,
     temperature_impact_analysis,
 )
 
@@ -14,9 +13,8 @@ def render_advanced_analysis_page(df: pd.DataFrame):
     st.markdown("Explore deeper insights into CO2 emissions: fuel sources, greenhouse gases, and temperature impact.")
     
     # Create tabs for different analysis types
-    tab1, tab2, tab3 = st.tabs([
+    tab1, tab2 = st.tabs([
         "Fuel Sources",
-        "Greenhouse Gases",
         "Temperature Impact"
     ])
     
@@ -80,45 +78,10 @@ def render_advanced_analysis_page(df: pd.DataFrame):
     
     # (Consumption, Efficiency, and Cumulative analyses removed per user request.)
     
-    # Tab 2: Greenhouse Gases
-    with tab2:
-        st.subheader("Greenhouse Gas Emissions (Beyond CO2)")
-        st.markdown("Analysis of methane, nitrous oxide, and total greenhouse gas emissions.")
-        
-        country_list = sorted(df["country"].dropna().unique())
-        ghg_country = st.selectbox("Select Country", options=country_list, key="ghg_country")
-        
-        fig_ghg = greenhouse_gas_analysis.plot_ghg_composition(df, ghg_country)
-        if fig_ghg:
-            st.plotly_chart(fig_ghg, use_container_width=True)
-        else:
-            st.warning("No GHG data available for this country.")
-        
-        st.markdown("---")
-        st.subheader("GHG Emissions Rankings")
-        years = sorted(df["year"].dropna().astype(int).unique())
-        ghg_year = st.selectbox("Select Year", options=years, index=len(years)-1, key="ghg_year")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**Top GHG Emitters per Capita**")
-            top_ghg = greenhouse_gas_analysis.get_ghg_per_capita_ranking(df, ghg_year, top_n=15)
-            if not top_ghg.empty:
-                st.dataframe(top_ghg, use_container_width=True)
-            else:
-                st.warning("No GHG per capita data available.")
-        
-        with col2:
-            st.markdown("**GHG vs CO2 Comparison**")
-            fig_ghg_vs_co2 = greenhouse_gas_analysis.plot_ghg_vs_co2(df, ghg_year)
-            if fig_ghg_vs_co2:
-                st.plotly_chart(fig_ghg_vs_co2, use_container_width=True)
-            else:
-                st.warning("No GHG comparison data available.")
+    # NOTE: Greenhouse gas analysis module removed. Temperature Impact is next tab.
     
-    # Tab 3: Temperature Impact
-    with tab3:
+    # Tab 2: Temperature Impact
+    with tab2:
         st.subheader("Temperature Impact from Emissions")
         st.markdown("**Unique Analysis**: See how countries' emissions contribute to global temperature change. This shows the direct climate impact of emissions.")
         
